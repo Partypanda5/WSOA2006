@@ -6,14 +6,16 @@ using UnityEngine.InputSystem;
 public class FirstPersonControls : MonoBehaviour
 {
     // Public variables to set movement and look speed, and the player camera
-    public float moveSpeed = 5f; // Speed at which the player moves
-    public float lookSpeed = 2f; // Sensitivity of the camera movement
+    public float moveSpeed; // Speed at which the player moves
+    public float lookSpeed; // Sensitivity of the camera movement
+    public float gravity = -9.81f; // Gravity value
     public Transform playerCamera; // Reference to the player's camera
 
     // Private variables to store input values and the character controller
     private Vector2 moveInput; // Stores the movement input from the player
     private Vector2 lookInput; // Stores the look input from the player
     private float verticalLookRotation = 0f; // Keeps track of vertical camera rotation for clamping
+    private Vector3 velocity; // Velocity of the player
 
     private CharacterController characterController; // Reference to the CharacterController component
 
@@ -45,6 +47,7 @@ public class FirstPersonControls : MonoBehaviour
         // Call Move and LookAround methods every frame to handle player movement and camera rotation
         Move();
         LookAround();
+        ApplyGravity(); 
     }
 
     public void Move()
@@ -74,5 +77,16 @@ public class FirstPersonControls : MonoBehaviour
 
         // Apply the clamped vertical rotation to the player camera
         playerCamera.localEulerAngles = new Vector3(verticalLookRotation, 0, 0);
+    }
+
+    public void ApplyGravity()
+    {
+        if (characterController.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -0.5f; // Small value to keep the player grounded
+        }
+
+        velocity.y += gravity * Time.deltaTime; // Apply gravity to the velocity
+        characterController.Move(velocity * Time.deltaTime); // Apply the velocity to the character
     }
 }
