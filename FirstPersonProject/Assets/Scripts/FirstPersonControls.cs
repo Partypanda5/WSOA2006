@@ -8,6 +8,7 @@ public class FirstPersonControls : MonoBehaviour
     public float moveSpeed; // Speed at which the player moves
     public float lookSpeed; // Sensitivity of the camera movement
     public float gravity = -9.81f; // Gravity value
+    public float jumpHeight = 1.0f; // Height of the jump
     public Transform playerCamera; // Reference to the player's camera
 
     // Private variables to store input values and the character controller
@@ -17,6 +18,7 @@ public class FirstPersonControls : MonoBehaviour
     private Vector3 velocity; // Velocity of the player
 
     private CharacterController characterController; // Reference to the CharacterController component
+
 
     private void Awake()
     {
@@ -39,6 +41,9 @@ public class FirstPersonControls : MonoBehaviour
         // Subscribe to the look input events
         playerInput.Player.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>(); // Update lookInput when look input is performed
         playerInput.Player.Look.canceled += ctx => lookInput = Vector2.zero; // Reset lookInput when look input is canceled
+
+        // Subscribe to the jump input event
+        playerInput.Player.Jump.performed += ctx => Jump(); // Call the Jump method when jump input is performed
     }
 
     private void Update()
@@ -87,5 +92,14 @@ public class FirstPersonControls : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime; // Apply gravity to the velocity
         characterController.Move(velocity * Time.deltaTime); // Apply the velocity to the character
+    }
+
+    public void Jump()
+    {
+        if (characterController.isGrounded)
+        {
+            // Calculate the jump velocity
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
     }
 }
