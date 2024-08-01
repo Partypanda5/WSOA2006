@@ -11,6 +11,10 @@ public class FirstPersonControls : MonoBehaviour
     public float jumpHeight = 1.0f; // Height of the jump
     public Transform playerCamera; // Reference to the player's camera
 
+    public GameObject projectilePrefab; // Projectile prefab for shooting
+    public Transform firePoint; // Point from which the projectile is fired
+    public float projectileSpeed = 20f; // Speed at which the projectile is fired
+
     // Private variables to store input values and the character controller
     private Vector2 moveInput; // Stores the movement input from the player
     private Vector2 lookInput; // Stores the look input from the player
@@ -44,6 +48,9 @@ public class FirstPersonControls : MonoBehaviour
 
         // Subscribe to the jump input event
         playerInput.Player.Jump.performed += ctx => Jump(); // Call the Jump method when jump input is performed
+
+        // Subscribe to the shoot input event
+        playerInput.Player.Shoot.performed += ctx => Shoot(); // Call the Shoot method when shoot input is performed
     }
 
     private void Update()
@@ -101,5 +108,18 @@ public class FirstPersonControls : MonoBehaviour
             // Calculate the jump velocity
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
+    }
+
+    public void Shoot()
+    {
+        // Instantiate the projectile at the fire point
+        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+
+        // Get the Rigidbody component of the projectile and set its velocity
+        Rigidbody rb = projectile.GetComponent<Rigidbody>();
+        rb.velocity = firePoint.forward * projectileSpeed;
+
+        // Destroy the projectile after 3 seconds
+        Destroy(projectile, 3f);
     }
 }
