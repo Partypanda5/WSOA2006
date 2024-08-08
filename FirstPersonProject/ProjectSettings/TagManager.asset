@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - Bullet
+  - Gun
+  - PickUp
   layers:
   - Default
   - TransparentFX
