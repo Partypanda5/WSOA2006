@@ -509,7 +509,7 @@ Transform:
   m_GameObject: {fileID: 542413149}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.17, y: 0.13, z: 0.453}
+  m_LocalPosition: {x: -0.17, y: -0.15, z: 0.453}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -707,6 +707,12 @@ MonoBehaviour:
   gravity: -9.81
   jumpHeight: 1
   playerCamera: {fileID: 330585546}
+  projectilePrefab: {fileID: 202633237317371341, guid: 8139613cdb683424d9920359312ea899,
+    type: 3}
+  firePoint: {fileID: 542413150}
+  projectileSpeed: 20
+  pickUpRange: 3
+  holdPosition: {fileID: 0}
 --- !u!143 &1610053459
 CharacterController:
   m_ObjectHideFlags: 0
