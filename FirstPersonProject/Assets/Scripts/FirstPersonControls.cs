@@ -26,7 +26,7 @@ public class FirstPersonControls : MonoBehaviour
     public Transform firePoint; // Point from which the projectile is fired
     public float projectileSpeed = 20f; // Speed at which the projectile is fired
     public float pickUpRange = 3f; // Range within which objects can be picked up
-    private bool holdingGun = true;
+    private bool holdingGun = false;
 
     [Header("PICKING UP SETTINGS")]
     [Space(5)]
