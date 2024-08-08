@@ -33,6 +33,13 @@ public class FirstPersonControls : MonoBehaviour
     public float pickUpRange = 3f; // Range within which objects can be
     private bool holdingGun = false;
 
+    [Header("CROUCH SETTINGS")]
+    [Space(5)]
+    public float crouchHeight = 1f; //make short
+    public float standingHeight = 2f; //make normal 
+    public float crouchSpeed = 1.5f; //maKe slow 
+    private bool isCrouching = false; //check if crouch
+
     private void Awake()
     {
         // Get and store the CharacterController component attached to this GameObject
@@ -58,6 +65,8 @@ public class FirstPersonControls : MonoBehaviour
         playerInput.Player.Shoot.performed += ctx => Shoot(); // Call the Shoot method when shoot input is performed
         // Subscribe to the pick-up input event
         playerInput.Player.PickUp.performed += ctx => PickUpObject(); // Call the PickUpObject method when pick-up input is performed
+
+        playerInput.Player.Crouch.performed += ctx => ToggleCrouch(); // Call the PickUpObject method when pick-up input is performed
     }
     private void Update()
     {
@@ -72,8 +81,19 @@ public class FirstPersonControls : MonoBehaviour
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
         // Transform direction from local to world space
         move = transform.TransformDirection(move);
+
+        float currentSpeed;
+        if (isCrouching)
+        {
+            currentSpeed = crouchSpeed;
+        }
+        else 
+        {
+            currentSpeed = moveSpeed;
+        }
+
         // Move the character controller based on the movement vector and speed
-    characterController.Move(move * moveSpeed * Time.deltaTime);
+         characterController.Move(move * currentSpeed * Time.deltaTime);
     }
     public void LookAround()
     {
@@ -161,6 +181,20 @@ public class FirstPersonControls : MonoBehaviour
                 heldObject.transform.parent = holdPosition;
                 holdingGun = true;
             }
+        }
+    }
+
+    public void ToggleCrouch() 
+    {
+        if (isCrouching)
+        {
+            characterController.height = standingHeight;
+            isCrouching = false;
+        }
+        else 
+        {
+            characterController.height = crouchHeight;
+            isCrouching = true;
         }
     }
 }
