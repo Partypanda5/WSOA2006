@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class FirstPersonControls : MonoBehaviour
 {
@@ -45,6 +47,16 @@ public class FirstPersonControls : MonoBehaviour
     [Space(5)]
     public Material switchMaterial; // Material to apply when switch is activated
     public GameObject[] objectsToChangeColor; // Array of objects to change color
+
+    [Header("UI SETTINGS")]
+    public TextMeshProUGUI pickUpText;
+    public Image healthBar;
+    public float damageAmount = 0.25f; // Reduce the health bar by this amount
+    private float healAmount = 0.5f;// Fill the health bar by this amount
+
+    [Header("ANIMATION SETTINGS")]
+    [Space(5)]
+    public Animator animator; // Reference to the Animator component
 
 
 
@@ -91,7 +103,8 @@ public class FirstPersonControls : MonoBehaviour
         // Call Move and LookAround methods every frame to handle player movement and camera rotation
         Move();
         LookAround();
-        ApplyGravity(); 
+        ApplyGravity();
+        CheckForPickUp(); // Check for pickup objects every frame
     }
 
     public void Move()
@@ -101,10 +114,13 @@ public class FirstPersonControls : MonoBehaviour
 
         // Transform direction from local to world space
         move = transform.TransformDirection(move);
-
-        // Adjust speed if crouching
         float currentSpeed;
-        if (isCrouching)
+
+        if (moveInput.x == 0 && moveInput.y == 0) 
+        {
+            currentSpeed = 0;
+        }
+       else if (isCrouching)
         {
             currentSpeed = crouchSpeed;
         }
@@ -113,9 +129,9 @@ public class FirstPersonControls : MonoBehaviour
             currentSpeed = moveSpeed;
         }
 
-
         // Move the character controller based on the movement vector and speed
         characterController.Move(move * currentSpeed * Time.deltaTime);
+        animator.SetFloat("Speed", currentSpeed); // Update the Speed parameter in the Animator
     }
 
     public void LookAround()
@@ -153,6 +169,8 @@ public class FirstPersonControls : MonoBehaviour
             // Calculate the jump velocity
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
+
+        healthBar.fillAmount -= damageAmount;
     }
 
     public void Shoot()
@@ -169,6 +187,8 @@ public class FirstPersonControls : MonoBehaviour
             // Destroy the projectile after 3 seconds
             Destroy(projectile, 3f);
         }
+
+        healthBar.fillAmount += healAmount;
     }
 
     public void PickUpObject()
@@ -257,9 +277,26 @@ public class FirstPersonControls : MonoBehaviour
             }
 
             else if (hit.collider.CompareTag("Door")) // Check if the object is a door
-            {
-                // Start moving the door upwards
-                StartCoroutine(RaiseDoor(hit.collider.gameObject));
+            { 
+                Animator doorAnimator = hit.collider.GetComponent<Animator>();
+                AudioSource doorAudio = hit.collider.GetComponent<AudioSource>();
+
+                // Toggle between open and close animations using a bool parameter
+
+                bool isOpen = doorAnimator.GetBool("isOpen");
+
+                if (isOpen)
+                {
+                    doorAnimator.SetTrigger("CloseDoor");
+                    doorAnimator.SetBool("isOpen", false);
+                    doorAudio.Play();
+                }
+                else
+                {
+                    doorAnimator.SetTrigger("OpenDoor");
+                    doorAnimator.SetBool("isOpen", true);
+                    doorAudio.Play();
+                }
             }
         }
     }
@@ -280,5 +317,32 @@ public class FirstPersonControls : MonoBehaviour
         }
     }
 
+    private void CheckForPickUp()
+    {
+        Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+        RaycastHit hit;
+
+        // Perform raycast to detect objects
+        if (Physics.Raycast(ray, out hit, pickUpRange))
+        {
+            // Check if the object has the "PickUp" tag
+            if (hit.collider.CompareTag("PickUp"))
+            {
+                // Display the pick-up text
+                pickUpText.gameObject.SetActive(true);
+                pickUpText.text = hit.collider.gameObject.name;
+            }
+            else
+            {
+                // Hide the pick-up text if not looking at a "PickUp" object
+                pickUpText.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            // Hide the text if not looking at any object
+            pickUpText.gameObject.SetActive(false);
+        }
+    }
 
 }
